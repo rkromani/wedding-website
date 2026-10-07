@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Keeps the site out of Google/Bing search results -->
+  <meta name="robots" content="noindex, nofollow">
+  <title>RSVP &middot; Partner One &amp; Partner Two</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <a class="site-title" href="index.html">Partner One &amp; Partner Two</a>
+    <nav class="site-nav">
+      <a href="index.html">Home</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="travel.html">Travel &amp; Lodging</a>
+      <a href="things-to-do.html">Things to Do</a>
+      <a href="faq.html">FAQ</a>
+      <a href="rsvp.html" aria-current="page">RSVP</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-intro">
+      <h1>RSVP</h1>
+      <p>Kindly reply by <strong>Month Day, 2027</strong>.</p>
+    </section>
+
+    <!--
+      This form sends answers to a Google Form (and from there to a Google Sheet).
+      The "name" attributes (entry.XXXXXXX) must match your Google Form's field IDs.
+      See README.md, "Connecting the RSVP form", for how to find them.
+      The connection settings live in js/rsvp.js.
+    -->
+    <form class="rsvp-form" id="rsvp-form">
+      <div class="field">
+        <label for="rsvp-name">Your name(s)</label>
+        <input type="text" id="rsvp-name" name="entry.1111111111" required>
+      </div>
+
+      <div class="field">
+        <label for="rsvp-email">Email</label>
+        <input type="email" id="rsvp-email" name="entry.2222222222">
+      </div>
+
+      <!-- The value="" text must exactly match the option text in your Google Form -->
+      <fieldset class="field">
+        <legend>Will you be joining us?</legend>
+        <label class="choice"><input type="radio" name="entry.3333333333" value="Joyfully accepts" required> Joyfully accepts</label>
+        <label class="choice"><input type="radio" name="entry.3333333333" value="Regretfully declines"> Regretfully declines</label>
+      </fieldset>
+
+      <div class="field">
+        <label for="rsvp-count">Number of guests attending</label>
+        <input type="number" id="rsvp-count" name="entry.4444444444" min="0" max="10" value="1">
+      </div>
+
+      <div class="field">
+        <label for="rsvp-diet">Dietary restrictions or allergies</label>
+        <input type="text" id="rsvp-diet" name="entry.5555555555">
+      </div>
+
+      <div class="field">
+        <label for="rsvp-note">A note for us (optional)</label>
+        <textarea id="rsvp-note" name="entry.6666666666"></textarea>
+      </div>
+
+      <button class="button" type="submit">Send RSVP</button>
+      <p class="form-error" id="rsvp-error" hidden></p>
+    </form>
+
+    <div class="form-message rsvp-form" id="rsvp-thanks" hidden>
+      <h2>Thank you!</h2>
+      <p>We've received your RSVP. We can't wait to celebrate with you.</p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="divider"><span></span></div>
+    <p>Questions? Reach us at <a href="mailto:you@example.com">you@example.com</a></p>
+  </footer>
+  <script src="js/rsvp.js"></script>
+</body>
+</html>

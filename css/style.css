@@ -368,3 +368,44 @@ fieldset.field { border: 0; padding: 0; margin-left: 0; margin-right: 0; }
 }
 
 [hidden] { display: none !important; }
+
+/* Activity options inside a schedule item (e.g. hiking / climbing) */
+.timeline .activity {
+  border-left: 2px solid var(--gold);
+  padding: 0.1rem 0 0.1rem 1rem;
+  margin-top: 1.25rem;
+}
+.timeline .activity p { margin-top: 0.4rem; }
+.activity-type {
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--moss) !important;
+  margin: 0 !important;
+}
+.activity h4 {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 1.2rem;
+  color: var(--fir);
+  margin: 0.1rem 0 0;
+}
+.activity-stats { font-size: 0.9rem; color: var(--bark) !important; }
+.routes {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.routes li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px dotted rgba(168, 123, 63, 0.4);
+  color: var(--ink);
+}
+.routes .grade {
+  color: var(--bark);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}

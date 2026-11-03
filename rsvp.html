@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Keeps the site out of Google/Bing search results -->
   <meta name="robots" content="noindex, nofollow">
-  <title>RSVP &middot; Partner One &amp; Partner Two</title>
+  <title>RSVP &middot; Kate Roberts &amp; Roger Romani</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
@@ -14,7 +14,7 @@
 <body>
 
   <header class="site-header">
-    <a class="site-title" href="index.html">Partner One &amp; Partner Two</a>
+    <a class="site-title" href="index.html"> Kate Roberts &amp; Roger Romani</a>
     <nav class="site-nav">
       <a href="index.html">Home</a>
       <a href="schedule.html">Schedule</a>
@@ -28,7 +28,7 @@
   <main>
     <section class="page-intro">
       <h1>RSVP</h1>
-      <p>Kindly reply by <strong>Month Day, 2027</strong>.</p>
+      <p>Kindly reply by <strong>December 1, 2026</strong>.</p>
     </section>
 
     <!--
@@ -65,9 +65,17 @@
         <input type="text" id="rsvp-diet" name="entry.5555555555">
       </div>
 
+      <fieldset class="field">
+        <legend>Are you interested in joining us on Saturday for hiking or climbing?</legend>
+        <label class="choice"><input type="radio" name="entry.6666666666" value="Yes, we would love to join for hiking" required> Yes, we would love to join for hiking</label>
+        <label class="choice"><input type="radio" name="entry.6666666666" value="Yes, we would love to join for climbing"> Yes, we would love to join for climbing</label>
+        <label class="choice"><input type="radio" name="entry.6666666666" value="Yes, but we're unsure which (or different people are interested in different activites)"> Yes, but we're unsure which (or different people are interested in different activites)</label>
+        <label class="choice"><input type="radio" name="entry.6666666666" value="Regretfully, no"> Regretfully, no</label>
+      </fieldset>
+
       <div class="field">
         <label for="rsvp-note">A note for us (optional)</label>
-        <textarea id="rsvp-note" name="entry.6666666666"></textarea>
+        <textarea id="rsvp-note" name="entry.7777777777"></textarea>
       </div>
 
       <button class="button" type="submit">Send RSVP</button>
@@ -82,7 +90,7 @@
 
   <footer class="site-footer">
     <div class="divider"><span></span></div>
-    <p>Questions? Reach us at <a href="mailto:you@example.com">you@example.com</a></p>
+    <!-- <p>Questions? Reach us at <a href="mailto:you@example.com">you@example.com</a></p> -->
   </footer>
   <script src="js/rsvp.js"></script>
 </body>

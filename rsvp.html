@@ -38,7 +38,7 @@
     <!--
       HOW THIS WORKS
       1. The guest types their name; js/rsvp.js looks up their household.
-      2. One copy of the "person-template" below is shown for each person in the household.
+      2. The questions in "questions-template" below are shown in a grid, one column per person.
       3. Answers are saved to the Google Sheet (connection settings are in js/rsvp.js).
 
       To edit a question: change its text below. If you change an option's value="",
@@ -66,11 +66,6 @@
       <!-- Asked once for the whole party -->
       <div class="household-fields">
         <div class="field">
-          <label for="rsvp-email">Email</label>
-          <input type="email" id="rsvp-email" name="email" autocomplete="email">
-        </div>
-
-        <div class="field">
           <label for="rsvp-note">A note for us (optional)</label>
           <textarea id="rsvp-note" name="note"></textarea>
         </div>
@@ -86,83 +81,80 @@
       <p>Need to change something? Just come back and look up your name again.</p>
     </div>
 
-    <!-- The questions asked for EACH person in the party -->
-    <template id="person-template">
-      <fieldset class="person">
-        <legend class="person-name"></legend>
+    <!--
+      The questions asked for EACH person in the party. Each question becomes a row,
+      with one column per person. "Will you be joining us?" (name="attending") must
+      stay. Questions above it are asked of everyone; questions below it are only
+      asked of people who accept.
+    -->
+    <template id="questions-template">
+      <div class="field">
+        <label>Email (optional)</label>
+        <input type="email" name="email" autocomplete="off">
+      </div>
 
-        <!-- Only shown for a plus-one whose name we don't know yet -->
-        <div class="field guest-name" hidden>
-          <label>Guest's name</label>
-          <input type="text" name="guestName">
-        </div>
-
-        <fieldset class="field">
-          <legend>Will you be joining us?</legend>
-          <label class="choice"><input type="radio" name="attending" value="Joyfully accepts" required> Joyfully accepts</label>
-          <label class="choice"><input type="radio" name="attending" value="Regretfully declines"> Regretfully declines</label>
-        </fieldset>
-
-        <!-- Everything below is hidden (and not required) if this person declines -->
-        <fieldset class="person-details" hidden disabled>
-          <!-- <fieldset class="field">
-            <legend>Do you anticipate joining for Friday night (optional casual welcome evening)?</legend>
-            <label class="choice"><input type="radio" name="friday" value="Yes" required> Yes</label>
-            <label class="choice"><input type="radio" name="friday" value="No"> No</label>
-          </fieldset>
-
-          <fieldset class="field">
-            <legend>Are you interested in joining us on Saturday for hiking or climbing?</legend>
-            <label class="choice"><input type="radio" name="activity" value="Yes, we would love to join for hiking" required> Yes, we would love to join for hiking</label>
-            <label class="choice"><input type="radio" name="activity" value="Yes, we would love to join for climbing"> Yes, we would love to join for climbing</label>
-            <label class="choice"><input type="radio" name="activity" value="Yes, but we're unsure which (or different people are interested in different activites)"> Yes, but we're unsure which (or different people are interested in different activites)</label>
-            <label class="choice"><input type="radio" name="activity" value="Regretfully, no"> Regretfully, no</label>
-          </fieldset>
-
-          <fieldset class="field">
-            <legend>Do you anticipate joining for Saturday night (welcome/rehearsal dinner)?</legend>
-            <label class="choice"><input type="radio" name="saturday" value="Yes" required> Yes</label>
-            <label class="choice"><input type="radio" name="saturday" value="No"> No</label>
-          </fieldset>
-
-          <fieldset class="field">
-            <legend>Do you anticipate joining for the Sunday wedding?</legend>
-            <label class="choice"><input type="radio" name="sunday" value="Yes" required> Yes</label>
-            <label class="choice"><input type="radio" name="sunday" value="No"> No</label>
-          </fieldset>
-
-          <fieldset class="field">
-            <legend>Do you anticipate joining for the Monday goodbye breakfast?</legend>
-            <label class="choice"><input type="radio" name="monday" value="Yes" required> Yes</label>
-            <label class="choice"><input type="radio" name="monday" value="No"> No</label>
-          </fieldset> -->
-
-          <fieldset class="field">
-            <legend>Where do you anticipate staying?</legend>
-            <label class="choice"><input type="radio" name="stay" value="I would love to camp by the cabin!" required> I would love to camp by the cabin!</label>
-            <label class="choice"><input type="radio" name="stay" value="I'd like to hear more information about the room block"> I'd like to hear more information about the room block</label>
-            <label class="choice"><input type="radio" name="stay" value="I'll figure out our own housing"> I'll figure out our own housing</label>
-          </fieldset>
-
-          <fieldset class="field">
-            <legend>When do you anticipate arriving?</legend>
-            <label class="choice"><input type="radio" name="arrive" value="Friday" required> Friday</label>
-            <label class="choice"><input type="radio" name="arrive" value="Saturday"> Saturday</label>
-            <label class="choice"><input type="radio" name="arrive" value="Sunday"> Sunday</label>
-          </fieldset>
-
-          <fieldset class="field">
-            <legend>When do you anticipate departing?</legend>
-            <label class="choice"><input type="radio" name="depart" value="Sunday" required> Sunday</label>
-            <label class="choice"><input type="radio" name="depart" value="Monday"> Monday</label>
-          </fieldset>
-
-          <!-- <div class="field">
-            <label>Dietary restrictions or allergies</label>
-            <input type="text" name="diet">
-          </div> -->
-        </fieldset>
+      <fieldset class="field">
+        <legend>Will you be joining us?</legend>
+        <label class="choice"><input type="radio" name="attending" value="Joyfully accepts" required> Joyfully accepts</label>
+        <label class="choice"><input type="radio" name="attending" value="Regretfully declines"> Regretfully declines</label>
       </fieldset>
+
+      <!-- <fieldset class="field">
+        <legend>Do you anticipate joining for Friday night (optional casual welcome evening)?</legend>
+        <label class="choice"><input type="radio" name="friday" value="Yes" required> Yes</label>
+        <label class="choice"><input type="radio" name="friday" value="No"> No</label>
+      </fieldset>
+
+      <fieldset class="field">
+        <legend>Are you interested in joining us on Saturday for hiking or climbing?</legend>
+        <label class="choice"><input type="radio" name="activity" value="Yes, we would love to join for hiking" required> Yes, we would love to join for hiking</label>
+        <label class="choice"><input type="radio" name="activity" value="Yes, we would love to join for climbing"> Yes, we would love to join for climbing</label>
+        <label class="choice"><input type="radio" name="activity" value="Yes, but we're unsure which (or different people are interested in different activites)"> Yes, but we're unsure which (or different people are interested in different activites)</label>
+        <label class="choice"><input type="radio" name="activity" value="Regretfully, no"> Regretfully, no</label>
+      </fieldset>
+
+      <fieldset class="field">
+        <legend>Do you anticipate joining for Saturday night (welcome/rehearsal dinner)?</legend>
+        <label class="choice"><input type="radio" name="saturday" value="Yes" required> Yes</label>
+        <label class="choice"><input type="radio" name="saturday" value="No"> No</label>
+      </fieldset>
+
+      <fieldset class="field">
+        <legend>Do you anticipate joining for the Sunday wedding?</legend>
+        <label class="choice"><input type="radio" name="sunday" value="Yes" required> Yes</label>
+        <label class="choice"><input type="radio" name="sunday" value="No"> No</label>
+      </fieldset>
+
+      <fieldset class="field">
+        <legend>Do you anticipate joining for the Monday goodbye breakfast?</legend>
+        <label class="choice"><input type="radio" name="monday" value="Yes" required> Yes</label>
+        <label class="choice"><input type="radio" name="monday" value="No"> No</label>
+      </fieldset> -->
+
+      <fieldset class="field">
+        <legend>Where do you anticipate staying?</legend>
+        <label class="choice"><input type="radio" name="stay" value="I would love to camp by the cabin!" required> I would love to camp by the cabin!</label>
+        <label class="choice"><input type="radio" name="stay" value="I'd like to hear more information about the room block"> I'd like to hear more information about the room block</label>
+        <label class="choice"><input type="radio" name="stay" value="I'll figure out our own housing"> I'll figure out our own housing</label>
+      </fieldset>
+
+      <fieldset class="field">
+        <legend>When do you anticipate arriving?</legend>
+        <label class="choice"><input type="radio" name="arrive" value="Friday" required> Friday</label>
+        <label class="choice"><input type="radio" name="arrive" value="Saturday"> Saturday</label>
+        <label class="choice"><input type="radio" name="arrive" value="Sunday"> Sunday</label>
+      </fieldset>
+
+      <fieldset class="field">
+        <legend>When do you anticipate departing?</legend>
+        <label class="choice"><input type="radio" name="depart" value="Sunday" required> Sunday</label>
+        <label class="choice"><input type="radio" name="depart" value="Monday"> Monday</label>
+      </fieldset>
+
+      <!-- <div class="field">
+        <label>Dietary restrictions or allergies</label>
+        <input type="text" name="diet">
+      </div> -->
     </template>
   </main>
 

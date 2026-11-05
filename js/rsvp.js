@@ -10,16 +10,17 @@ const RSVP_API_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
 const DEMO_HOUSEHOLDS = [
   {
     id: "demo-1",
-    email: "",
     note: "",
     members: [
       { id: "demo-1a", name: "Jane Example", responses: {} },
       { id: "demo-1b", name: "John Example", responses: {} },
+      { id: "demo-1c", name: "Emma Example", responses: {} },
+      { id: "demo-1d", name: "Oliver Example", responses: {} },
+      { id: "demo-1e", name: "Lucy Example", responses: {} },
     ],
   },
   {
     id: "demo-2",
-    email: "",
     note: "",
     members: [
       { id: "demo-2a", name: "Sam Sample", responses: {} },
@@ -37,7 +38,7 @@ const rsvpError = document.getElementById("rsvp-error");
 const partyList = document.getElementById("party-list");
 const partyNames = document.getElementById("party-names");
 const thanks = document.getElementById("rsvp-thanks");
-const template = document.getElementById("person-template");
+const template = document.getElementById("questions-template");
 
 let household = null;
 
@@ -112,70 +113,123 @@ lookupForm.addEventListener("submit", async (event) => {
   }
 });
 
-// ---------- Step 2: one set of questions per person ----------
+// ---------- Step 2: a grid with one column per person ----------
+
+function el(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text) node.textContent = text;
+  return node;
+}
 
 function showHousehold(data) {
   household = data;
   partyList.innerHTML = "";
 
-  household.members.forEach((member, i) => {
-    const card = template.content.firstElementChild.cloneNode(true);
-    card.dataset.memberId = member.id;
-    card.querySelector(".person-name").textContent = member.plusOne ? "Your guest" : member.name;
+  const members = household.members;
+  const grid = el("div", "rsvp-grid");
+  grid.style.setProperty("--people", members.length);
 
-    // Give every input a unique name per person (e.g. "p0-friday"),
-    // remembering the original question name in data-key.
-    card.querySelectorAll("input, select, textarea").forEach((input) => {
-      input.dataset.key = input.name;
-      input.name = `p${i}-${input.name}`;
-    });
-
-    // Wire up labels for the guest-name box
-    const guestName = card.querySelector(".guest-name");
-    const guestInput = guestName.querySelector("input");
-    guestInput.id = `p${i}-guest-name`;
-    guestName.querySelector("label").htmlFor = guestInput.id;
-    guestInput.disabled = !member.plusOne;
+  // Header row: each person's name (or a name box for a plus-one)
+  members.forEach((member, i) => {
+    const head = el("div", "grid-name");
+    head.dataset.person = i;
     if (member.plusOne) {
-      guestName.hidden = false;
-      if (member.name && member.name !== "Guest") guestInput.value = member.name;
+      head.append(el("span", "", "Your guest"));
+      const input = el("input");
+      input.type = "text";
+      input.name = `p${i}-guestName`;
+      input.dataset.key = "guestName";
+      input.dataset.person = i;
+      input.placeholder = "Guest's name";
+      input.setAttribute("aria-label", "Your guest's name");
+      if (member.name && member.name !== "Guest") input.value = member.name;
+      head.append(input);
+    } else {
+      head.textContent = member.name;
     }
-
-    // Pre-fill anything they answered before
-    const saved = member.responses || {};
-    card.querySelectorAll("[data-key]").forEach((input) => {
-      const value = saved[input.dataset.key];
-      if (value == null || value === "") return;
-      if (input.type === "radio") input.checked = input.value === value;
-      else input.value = value;
-    });
-
-    // Only ask the follow-up questions if this person is coming
-    const details = card.querySelector(".person-details");
-    const update = () => {
-      const coming = card.querySelector('[data-key="attending"]:checked')?.value === "Joyfully accepts";
-      details.hidden = !coming;
-      details.disabled = !coming; // disabled = not required
-      guestInput.required = member.plusOne && coming;
-    };
-    card.querySelectorAll('[data-key="attending"]').forEach((r) => r.addEventListener("change", update));
-    update();
-
-    partyList.append(card);
+    grid.append(head);
   });
 
-  const names = household.members.filter((m) => !m.plusOne).map((m) => m.name);
-  if (household.members.some((m) => m.plusOne)) names.push("a guest");
+  // One row per question, one cell per person
+  let pastAttending = false;
+  template.content.querySelectorAll(".field").forEach((question) => {
+    const prompt = question.querySelector("legend, label:not(.choice)");
+    const key = question.querySelector("input, select, textarea").name;
+    const followUp = pastAttending; // questions after "attending" are only asked of people who accept
+    if (key === "attending") pastAttending = true;
+
+    grid.append(el("div", "grid-question", prompt.textContent));
+
+    members.forEach((member, i) => {
+      const cell = el("fieldset", "grid-cell");
+      cell.dataset.person = i;
+      if (followUp) cell.classList.add("follow-up");
+      const personName = member.plusOne ? "Your guest" : member.name;
+      cell.append(el("legend", "visually-hidden", `${personName}: ${prompt.textContent}`));
+
+      const answers = question.cloneNode(true);
+      answers.querySelector("legend, label:not(.choice)").remove();
+      answers.querySelectorAll("input, select, textarea").forEach((input) => {
+        input.dataset.key = input.name;
+        input.dataset.person = i;
+        input.name = `p${i}-${input.name}`;
+        if (input.type !== "radio") input.setAttribute("aria-label", cell.firstChild.textContent);
+      });
+      cell.append(...answers.childNodes);
+      if (followUp) cell.append(el("span", "not-attending", "—"));
+      grid.append(cell);
+    });
+  });
+
+  // Pre-fill anything they answered before
+  grid.querySelectorAll("[data-key]").forEach((input) => {
+    const value = (members[input.dataset.person].responses || {})[input.dataset.key];
+    if (value == null || value === "") return;
+    if (input.type === "radio") input.checked = input.value === value;
+    else input.value = value;
+  });
+
+  // Only ask the follow-up questions of people who are coming
+  members.forEach((member, i) => {
+    const update = () => {
+      const coming = grid.querySelector(`[data-person="${i}"][data-key="attending"]:checked`)?.value === "Joyfully accepts";
+      grid.querySelectorAll(`.follow-up[data-person="${i}"]`).forEach((cell) => {
+        cell.disabled = !coming; // disabled = not required
+      });
+      const guestInput = grid.querySelector(`.grid-name [data-person="${i}"]`);
+      if (guestInput) guestInput.required = coming;
+    };
+    grid.querySelectorAll(`[data-person="${i}"][data-key="attending"]`).forEach((r) => r.addEventListener("change", update));
+    update();
+  });
+
+  const wrap = el("div", "rsvp-grid-wrap");
+  wrap.append(grid);
+  partyList.append(el("p", "scroll-hint", "Scroll sideways to see everyone →"));
+  partyList.append(wrap);
+  rsvpForm.classList.toggle("is-wide", members.length >= 4); // more room for big parties
+
+  const names = members.filter((m) => !m.plusOne).map((m) => m.name);
+  if (members.some((m) => m.plusOne)) names.push("a guest");
   partyNames.textContent = joinNames(names);
 
-  document.getElementById("rsvp-email").value = household.email || "";
   document.getElementById("rsvp-note").value = household.note || "";
 
   lookupForm.hidden = true;
   rsvpForm.hidden = false;
+  updateScrollHint();
   showError(rsvpError, "");
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
+
+// Show the "scroll sideways" hint only when the grid doesn't fit (e.g. on phones)
+function updateScrollHint() {
+  const wrap = partyList.querySelector(".rsvp-grid-wrap");
+  const hint = partyList.querySelector(".scroll-hint");
+  if (wrap && hint) hint.hidden = wrap.scrollWidth <= wrap.clientWidth + 1;
+}
+window.addEventListener("resize", updateScrollHint);
 
 // ["A", "B", "C"] -> "A, B and C"
 function joinNames(names) {
@@ -195,17 +249,17 @@ rsvpForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   showError(rsvpError, "");
 
-  const members = [...partyList.querySelectorAll(".person")].map((card) => {
+  const members = household.members.map((member, i) => {
     const responses = {};
-    // Skip questions hidden because the person declined
-    card.querySelectorAll("[data-key]:not(:disabled)").forEach((input) => {
+    // Skip questions turned off because the person declined
+    partyList.querySelectorAll(`[data-person="${i}"][data-key]:not(:disabled)`).forEach((input) => {
       if (input.type === "radio") {
         if (input.checked) responses[input.dataset.key] = input.value;
       } else {
         responses[input.dataset.key] = input.value.trim();
       }
     });
-    return { id: card.dataset.memberId, responses };
+    return { id: member.id, responses };
   });
 
   const button = rsvpForm.querySelector('button[type="submit"]');
@@ -215,7 +269,6 @@ rsvpForm.addEventListener("submit", async (event) => {
   try {
     const result = await saveResponses({
       householdId: household.id,
-      email: document.getElementById("rsvp-email").value.trim(),
       note: document.getElementById("rsvp-note").value.trim(),
       members,
     });

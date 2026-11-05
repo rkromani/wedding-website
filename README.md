@@ -13,7 +13,9 @@ A plain HTML/CSS site hosted on GitHub Pages. There's no build step: edit the `.
 | `faq.html` | FAQ |
 | `rsvp.html` | RSVP form |
 | `css/style.css` | All styling (colors are at the top) |
-| `js/rsvp.js` | Sends the RSVP form to Google Forms |
+| `what-to-expect.html` | What to Expect |
+| `js/rsvp.js` | RSVP page: name lookup and saving answers |
+| `apps-script/Code.gs` | RSVP backend (runs in the Google Sheet, not on the site) |
 | `images/` | Put your photos here |
 
 The names, date, and email address appear on **every page** (header and footer).
@@ -44,43 +46,68 @@ The `class` sets the shape. Photos are cropped to fit it:
 `ratio-square` (1:1), `ratio-wide` (3:2), `ratio-banner` (16:7).
 File names are case-sensitive on GitHub: `Photo.JPG` and `photo.jpg` are different files.
 
-## Connecting the RSVP form
+## RSVP backend (Google Sheet)
 
-The RSVP page shows a form styled like the rest of the site. When a guest submits it,
-the answers are sent to a Google Form, which saves them to a Google Sheet.
+Guests type their name, the page looks up everyone in their party, and the answers are
+saved to a Google Sheet. The Sheet runs a small script (`apps-script/Code.gs`) that the
+website talks to. Until it's connected, the RSVP page runs in **demo mode** (try "Jane Example").
 
-1. **Create the Google Form** at forms.google.com with these questions, in any order:
-   - Your name(s): Short answer
-   - Email: Short answer
-   - Will you be joining us?: Multiple choice with exactly two options, `Joyfully accepts` and `Regretfully declines`
-   - Number of guests attending: Short answer
-   - Dietary restrictions or allergies: Short answer
-   - A note for us: Paragraph
+### 1. Make the Sheet
 
-   Don't mark any question "Required" in Google Forms (the website handles that).
-   In Settings → Responses, turn **off** "Collect email addresses" and "Limit to 1 response".
-   In the Responses tab, click "Link to Sheets" to send answers to a spreadsheet.
+Create a new Google Sheet. Rename the first tab (bottom left) to **Guests**, and put these
+headers in row 1:
 
-2. **Get the field IDs.** In the form editor, click the ⋮ menu → **Get pre-filled link**.
-   Type something into every field (e.g. `aaa`, pick "Joyfully accepts"), then click **Get link** and copy it.
-   The link looks like:
+| Household | Name | Plus-one | Other names |
+|---|---|---|---|
+| Smith family | Jane Smith | | Janie |
+| Smith family | John Smith | | |
+| Lee | Sam Lee | | |
+| Lee | Guest | yes | |
+| | Alex Doe | | |
 
-   ```
-   https://docs.google.com/forms/d/e/1FAIpQLSc...xyz/viewform?usp=pp_url&entry.123456789=aaa&entry.987654321=Joyfully+accepts...
-   ```
+- **Household**: the same text for everyone in a party. Blank means a party of one.
+- **Name**: first and last name, the way guests will type it. Capitals, accents and punctuation don't matter.
+- **Plus-one**: `yes` for an unnamed guest. Guests can't look themselves up by this row; they're
+  shown as "Your guest" with a box to fill in their name.
+- **Other names** (optional): nicknames or alternate spellings, separated by commas.
 
-   - The long part after `/forms/d/e/` and before `/viewform` is your **form ID**.
-   - Each `entry.NNNNNNN` is the ID of one question, in the order you filled them in.
+You can add your own columns (addresses, notes to yourselves) anywhere. Guests never see them.
 
-3. **Paste them in:**
-   - In `js/rsvp.js`, replace `PASTE_YOUR_FORM_ID_HERE` with the form ID.
-   - In `rsvp.html`, replace each placeholder `entry.1111111111`, `entry.2222222222`, etc. with the matching real ID.
+### 2. Add the script
 
-4. **Test it** by submitting the form on the live site. Check that a row shows up in the Google Sheet.
+1. In the Sheet: **Extensions → Apps Script**.
+2. Delete what's in the editor, paste in all of `apps-script/Code.gs`, and click 💾 Save.
+3. Click **Deploy → New deployment**. Click the ⚙️ next to "Select type" → **Web app**.
+   - Execute as: **Me**
+   - Who has access: **Anyone**
+4. Click **Deploy**, then **Authorize access** and pick your Google account. Google will warn that
+   the app isn't verified (it's your own script): click **Advanced → Go to … (unsafe)** → **Allow**.
+5. Copy the **Web app URL** (ends in `/exec`).
 
-To add a question (e.g. meal choice), add it to the Google Form, then copy one of the
-`<div class="field">` blocks in `rsvp.html` and use the new `entry.` ID.
-For multiple-choice questions, the website's `value="..."` text must exactly match the option text in the Google Form.
+### 3. Connect the website
+
+In `js/rsvp.js`, replace `PASTE_YOUR_APPS_SCRIPT_URL_HERE` with that URL. You can also delete the
+`DEMO_HOUSEHOLDS` sample guests. Then test by RSVPing as yourself on the site and checking the Sheet.
+
+### Where answers go
+
+- **Guests tab**: the script adds an `rsvp:` column for each question (`rsvp:email`, `rsvp:stay`, ...)
+  plus `rsvp:updated`. Columns appear the first time someone answers.
+- **Households tab** (created automatically): questions asked once per party (song requests, the note).
+- **Log tab** (created automatically): a copy of every RSVP sent, so nothing is lost if someone changes their answers.
+
+Don't rename the `rsvp:` columns. Feel free to move them, filter, sort, or add a summary tab.
+
+### Changing questions
+
+Edit the questions in `rsvp.html` (see the comments there). Each question's `name="..."`
+becomes its column name, so a new question just shows up as a new `rsvp:` column.
+If you change an answer's wording, people who already picked the old wording won't see it pre-selected.
+
+### If you change the script
+
+After editing the code in Apps Script, go to **Deploy → Manage deployments**, click ✏️,
+set Version to **New version**, and **Deploy**. The URL stays the same.
 
 ## Publishing (GitHub Pages)
 

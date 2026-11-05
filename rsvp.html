@@ -94,9 +94,9 @@
 
     <!--
       The questions asked for EACH person in the party. Each question becomes a row,
-      with one column per person. "Will you be joining us?" (name="attending") must
-      stay. Questions above it are asked of everyone; questions below it are only
-      asked of people who accept.
+      with one column per person. If "Will you be joining us?" (name="attending") is
+      turned on, questions below it are only asked of people who accept; otherwise
+      every question is asked of everyone.
     -->
     <template id="questions-template">
       <div class="field">
@@ -106,7 +106,7 @@
 
       <div class="field">
         <label>Phone Number (optional)</label>
-        <input type="phone" name="phone" autocomplete="off">
+        <input type="tel" name="phone" autocomplete="off">
       </div>
 
       <!--<fieldset class="field">

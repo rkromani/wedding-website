@@ -10,7 +10,7 @@ const RSVP_API_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
 const DEMO_HOUSEHOLDS = [
   {
     id: "demo-1",
-    note: "",
+    responses: {},
     members: [
       { id: "demo-1a", name: "Jane Example", responses: {} },
       { id: "demo-1b", name: "John Example", responses: {} },
@@ -21,7 +21,7 @@ const DEMO_HOUSEHOLDS = [
   },
   {
     id: "demo-2",
-    note: "",
+    responses: {},
     members: [
       { id: "demo-2a", name: "Sam Sample", responses: {} },
       { id: "demo-2b", name: "Guest", plusOne: true, responses: {} },
@@ -49,9 +49,10 @@ if (DEMO_MODE) {
   lookupForm.before(banner);
 }
 
-// "  Jane  O'Example " -> "jane oexample"
+// "  José  O'Brien-Smith " -> "jose obrien smith" (matches the Apps Script)
 function normalize(name) {
-  return name.toLowerCase().replace(/[^a-z\s]/g, "").replace(/\s+/g, " ").trim();
+  return String(name).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+    .replace(/[-–]/g, " ").replace(/[^a-z\s]/g, "").replace(/\s+/g, " ").trim();
 }
 
 function showError(box, message) {
@@ -214,7 +215,11 @@ function showHousehold(data) {
   if (members.some((m) => m.plusOne)) names.push("a guest");
   partyNames.textContent = joinNames(names);
 
-  document.getElementById("rsvp-note").value = household.note || "";
+  // Party-wide questions (note, song requests, ...)
+  const saved = household.responses || {};
+  householdInputs().forEach((input) => {
+    input.value = saved[input.name] || "";
+  });
 
   lookupForm.hidden = true;
   rsvpForm.hidden = false;
@@ -230,6 +235,11 @@ function updateScrollHint() {
   if (wrap && hint) hint.hidden = wrap.scrollWidth <= wrap.clientWidth + 1;
 }
 window.addEventListener("resize", updateScrollHint);
+
+// The questions asked once for the whole party
+function householdInputs() {
+  return [...rsvpForm.querySelectorAll(".household-fields [name]")];
+}
 
 // ["A", "B", "C"] -> "A, B and C"
 function joinNames(names) {
@@ -269,8 +279,11 @@ rsvpForm.addEventListener("submit", async (event) => {
   try {
     const result = await saveResponses({
       householdId: household.id,
-      note: document.getElementById("rsvp-note").value.trim(),
+      household: Object.fromEntries(householdInputs().map((input) => [input.name, input.value.trim()])),
       members,
+      // Every question's name, so the Sheet can clear answers that no longer apply
+      questions: ["guestName", ...new Set([...template.content.querySelectorAll("[name]")].map((input) => input.name))],
+      householdQuestions: householdInputs().map((input) => input.name),
     });
     if (result.status !== "ok") throw new Error(result.message || "Save failed");
     rsvpForm.hidden = true;

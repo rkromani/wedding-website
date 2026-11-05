@@ -320,6 +320,7 @@ fieldset.field { border: 0; padding: 0; margin-left: 0; margin-right: 0; }
 }
 
 .field > label.choice {
+  display: flex;
   font-size: 1rem;
   letter-spacing: normal;
   text-transform: none;
@@ -333,7 +334,7 @@ fieldset.field { border: 0; padding: 0; margin-left: 0; margin-right: 0; }
   margin: 0.35rem 0;
   cursor: pointer;
 }
-.choice input { accent-color: var(--fir); width: 1.05rem; height: 1.05rem; }
+.choice input { accent-color: var(--fir); width: 1.05rem; height: 1.05rem; flex-shrink: 0; }
 
 .button {
   display: inline-block;
@@ -350,6 +351,42 @@ fieldset.field { border: 0; padding: 0; margin-left: 0; margin-right: 0; }
 }
 .button:hover { background: var(--moss); }
 .button:disabled { opacity: 0.6; cursor: default; }
+
+/* RSVP: one card per person in the party */
+.party-intro { margin-top: 0; }
+.party-intro a { margin-left: 0.4rem; font-size: 0.9rem; }
+.person {
+  border: 1px solid rgba(47, 74, 58, 0.15);
+  border-top: 3px solid var(--moss);
+  background: var(--cream);
+  border-radius: 2px;
+  margin: 0 0 1.5rem;
+  padding: 0.5rem 1.25rem 0.25rem;
+  min-width: 0;
+}
+.person > legend.person-name {
+  float: left;               /* keeps the name inside the card */
+  width: 100%;
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  color: var(--fir);
+  padding: 0.75rem 0 0.75rem;
+}
+.person > legend + * { clear: both; }
+.person-details { border: 0; padding: 0; margin: 0; min-width: 0; }
+.person input[type="text"] { background: var(--paper); }
+.household-fields { margin-top: 2rem; }
+@media (max-width: 640px) {
+  .rsvp-form { padding: 1.5rem 1rem; }
+  .person { padding: 0.25rem 1rem 0; }
+}
+.demo-banner {
+  background: var(--sage);
+  color: var(--fir);
+  font-size: 0.9rem;
+  padding: 0.6rem 1rem;
+  border-radius: 2px;
+}
 
 .form-message {
   text-align: center;
@@ -453,4 +490,22 @@ html.locked body > *:not(.gate) { display: none; }
   outline: none;
   border-color: var(--gold);
   box-shadow: 0 0 0 3px rgba(168, 123, 63, 0.18);
+}
+
+/* ---------- What to Expect: alternating photo + text ---------- */
+
+.feature {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: center;
+  margin: 3rem 0;
+}
+.feature-reverse > :first-child,
+.feature-reverse > .photo-placeholder { order: 2; }
+.feature h2 { margin-top: 0; }
+@media (max-width: 640px) {
+  .feature { grid-template-columns: 1fr; gap: 1.25rem; margin: 2.25rem 0; }
+  .feature-reverse > :first-child,
+  .feature-reverse > .photo-placeholder { order: 0; }
 }

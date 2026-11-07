@@ -4,7 +4,12 @@
 // "web app". Paste its URL here once it's set up (it ends in /exec).
 // Until then, the page runs in DEMO MODE using the sample guests below,
 // and nothing is saved.
-const RSVP_API_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
+const RSVP_API_URL = "https://script.google.com/macros/s/AKfycbwqDHE4GeBr6PHPFnlweW1Rg9rYprb35PSWATjSxosVsNmML7DGq-XQ66XmLvpexbdg/exec";
+
+// Sent with every request so bots that find the Apps Script URL (e.g. by scanning
+// public GitHub repos) can't use it. Must match SITE_KEY in apps-script/Code.gs
+// exactly. See README.md, "RSVP backend".
+const SITE_KEY = "5679b9f87e1481b7dc72ba7eaefdd567b5746186b7433880";
 
 // Sample guests for demo mode only. Try "Jane Example" or "Sam Sample".
 const DEMO_HOUSEHOLDS = [
@@ -70,7 +75,7 @@ async function lookupHousehold(name) {
     );
     return match ? { status: "found", household: structuredClone(match) } : { status: "notfound" };
   }
-  const response = await fetch(`${RSVP_API_URL}?action=lookup&name=${encodeURIComponent(name)}`);
+  const response = await fetch(`${RSVP_API_URL}?action=lookup&key=${encodeURIComponent(SITE_KEY)}&name=${encodeURIComponent(name)}`);
   return response.json();
 }
 
@@ -83,7 +88,7 @@ async function saveResponses(payload) {
   const response = await fetch(RSVP_API_URL, {
     method: "POST",
     headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({ action: "submit", ...payload }),
+    body: JSON.stringify({ action: "submit", key: SITE_KEY, ...payload }),
   });
   return response.json();
 }

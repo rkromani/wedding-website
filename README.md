@@ -77,17 +77,34 @@ You can add your own columns (addresses, notes to yourselves) anywhere. Guests n
 
 1. In the Sheet: **Extensions → Apps Script**.
 2. Delete what's in the editor, paste in all of `apps-script/Code.gs`, and click 💾 Save.
-3. Click **Deploy → New deployment**. Click the ⚙️ next to "Select type" → **Web app**.
+3. Find the `SITE_KEY` line near the top and set it to a long random string (anything works —
+   mash the keyboard, or ask Claude to generate one). This keeps bots that scan public GitHub
+   repos for Apps Script URLs from being able to use yours; see "Why SITE_KEY exists" below.
+4. Click **Deploy → New deployment**. Click the ⚙️ next to "Select type" → **Web app**.
    - Execute as: **Me**
    - Who has access: **Anyone**
-4. Click **Deploy**, then **Authorize access** and pick your Google account. Google will warn that
+5. Click **Deploy**, then **Authorize access** and pick your Google account. Google will warn that
    the app isn't verified (it's your own script): click **Advanced → Go to … (unsafe)** → **Allow**.
-5. Copy the **Web app URL** (ends in `/exec`).
+6. Copy the **Web app URL** (ends in `/exec`).
 
 ### 3. Connect the website
 
-In `js/rsvp.js`, replace `PASTE_YOUR_APPS_SCRIPT_URL_HERE` with that URL. You can also delete the
-`DEMO_HOUSEHOLDS` sample guests. Then test by RSVPing as yourself on the site and checking the Sheet.
+In `js/rsvp.js`, replace `PASTE_YOUR_APPS_SCRIPT_URL_HERE` with that URL, and set `SITE_KEY` to
+the **exact same string** you put in `Code.gs`. You can also delete the `DEMO_HOUSEHOLDS` sample
+guests. Then test by RSVPing as yourself on the site and checking the Sheet.
+
+#### Why `SITE_KEY` exists
+
+The Apps Script URL isn't a secret on its own — your site has to send it to every visitor's
+browser to work, the same way the password screen only keeps out casual visitors (see its
+comment in `js/gate.js`). `SITE_KEY` doesn't change that; what it stops is a different, more
+automated problem: tools that continuously scan public GitHub for exposed API-looking URLs and
+try to abuse whatever they find. Without the key, one of those could call the Sheet directly —
+most usefully to look up any guest by name and read their email/phone/notes, since that only
+requires knowing a name. With the key, a request that doesn't include the exact right string is
+treated as if it were just a wrong name or a stale invitation, so a scanner can't even tell the
+key check exists. It won't stop someone who actually reads your site's code (nothing short of a
+real login would), but that's a much smaller, much less likely risk than automated scanning.
 
 ### Where answers go
 
@@ -108,6 +125,10 @@ If you change an answer's wording, people who already picked the old wording won
 
 After editing the code in Apps Script, go to **Deploy → Manage deployments**, click ✏️,
 set Version to **New version**, and **Deploy**. The URL stays the same.
+
+If you ever want to rotate `SITE_KEY` (e.g. you suspect it leaked somewhere), change it in both
+`Code.gs` and `js/rsvp.js` to the same new value, redeploy as above, and push the site. Until both
+sides match, the site's requests will fail the same way a stale invitation does.
 
 ## Publishing (GitHub Pages)
 

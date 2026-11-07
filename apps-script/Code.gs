@@ -20,8 +20,18 @@
 
 const PREFIX = "rsvp:";
 
+// A shared key your site sends with every request, so that bots which scan public
+// GitHub repos for Apps Script URLs can't query or write to your guest list just by
+// finding this URL. It does NOT stop someone who actually reads your website's code
+// (same as the password screen) — it only keeps out automated/casual visitors who
+// never look past the URL itself. Set this to anything long and random, then put the
+// exact same value in js/rsvp.js. See README.md, "RSVP backend".
+const SITE_KEY = "5679b9f87e1481b7dc72ba7eaefdd567b5746186b7433880";
+
 function doGet(e) {
   return respond(() => {
+    // Wrong/missing key looks exactly like "no such guest" — never reveals that a key is expected
+    if (e.parameter.key !== SITE_KEY) return { status: "notfound" };
     if (e.parameter.action === "lookup") return lookup(e.parameter.name || "");
     throw new Error("Unknown action");
   });
@@ -30,6 +40,8 @@ function doGet(e) {
 function doPost(e) {
   return respond(() => {
     const body = JSON.parse(e.postData.contents);
+    // Wrong/missing key fails the same way a stale invitation would
+    if (body.key !== SITE_KEY) throw new Error("Your invitation has changed. Please look up your name again.");
     if (body.action === "submit") return submit(body);
     throw new Error("Unknown action");
   });

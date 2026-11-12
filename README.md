@@ -8,7 +8,8 @@ A plain HTML/CSS site hosted on GitHub Pages. There's no build step: edit the `.
 |---|---|
 | `index.html` | Home |
 | `schedule.html` | Schedule |
-| `travel.html` | Travel & Lodging |
+| `travel.html` | Travel |
+| `lodging.html` | Lodging |
 | `things-to-do.html` | Things to Do |
 | `faq.html` | FAQ |
 | `rsvp.html` | RSVP form |

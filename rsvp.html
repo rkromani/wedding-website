@@ -20,9 +20,11 @@
       <a href="index.html">Home</a>
       <a href="schedule.html">Schedule</a>
       <a href="what-to-expect.html">What to Expect</a>
-      <a href="travel.html">Travel &amp; Lodging</a>
+      <a href="travel.html">Travel</a>
+      <a href="lodging.html">Lodging</a>
       <a href="things-to-do.html">Things to Do</a>
       <a href="faq.html">FAQ</a>
+      <a href="registry.html">Registry</a>
       <a href="rsvp.html" aria-current="page">RSVP</a>
     </nav>
   </header>
@@ -100,13 +102,13 @@
     -->
     <template id="questions-template">
       <div class="field">
-        <label>Email (optional)</label>
-        <input type="email" name="email" autocomplete="off">
+        <label>Email</label>
+        <input type="email" name="email" autocomplete="off" required>
       </div>
 
       <div class="field">
-        <label>Phone Number (optional)</label>
-        <input type="tel" name="phone" autocomplete="off">
+        <label>Phone Number</label>
+        <input type="tel" name="phone" autocomplete="off" required>
       </div>
 
       <!--<fieldset class="field">
@@ -152,7 +154,7 @@
       </fieldset>
 
       <fieldset class="field">
-        <legend>Where do you anticipate staying? See the travel page for more information.</legend>
+        <legend>Where do you anticipate staying? See the lodging page for more information.</legend>
         <label class="choice"><input type="radio" name="stay" value="I will be camping at the cabin!" required> I will be camping at the cabin!</label>
         <label class="choice"><input type="radio" name="stay" value="I would like to stay in town/elsewhere, but will book my own lodging"> I would like to stay in town/elsewhere, but will book my own lodging</label>
         <label class="choice"><input type="radio" name="stay" value="I would like to stay in town, and would like to receive information about room blocks"> I would like to stay in town, and would like to receive information about room blocks</label>
